@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>d39cc3ab-ee8a-4546-9489-885621d69e95</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TelegramApiProject\TelegramApiProject.csproj" />
+  </ItemGroup>
+
+
+</Project>
