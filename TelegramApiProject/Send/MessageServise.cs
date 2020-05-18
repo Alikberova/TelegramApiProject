@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TeleSharp.TL;
+﻿using TeleSharp.TL;
 
 namespace TelegramApiProject.Send
 {
     public class MessageServise
     {
-        public string FormMessaage(TLUser user, string messageText)
+        public string FormMessaage(TLUser user, string messageText, bool isNameincluded)
         {
-            if (string.IsNullOrEmpty(user.FirstName))
+            if (!string.IsNullOrEmpty(user.FirstName) && isNameincluded)
             {
-                return $"{user.FirstName}, \n{messageText}";
+                return $"{user.FirstName}, {messageText}";
             }
 
             return messageText;

@@ -1,0 +1,148 @@
+﻿using Microsoft.Win32;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Navigation;
+using TelegramApiProject.Search;
+using TelegramApiProject.Send;
+using TelegramApiProject.User;
+using TLSharp.Core;
+using Xceed.Wpf.Toolkit;
+using MessageBox = System.Windows.MessageBox;
+
+namespace TelegramApiProject.Wpf.Pages
+{
+    public partial class SendPage : Page
+    {
+        //todo IDisposable
+        private readonly SendService _sendService;
+        private readonly MessageServise _messageServise;
+        private readonly UserSearchResult _userSearchResult;
+        private readonly SendModel _sendModel;
+
+
+        public SendPage(UserSearchResult userSearchResult)
+        {
+            _messageServise = new MessageServise();
+            _sendService = new SendService( _messageServise, new UserService());
+
+            InitializeComponent();
+            InitTimer();
+
+            _userSearchResult = userSearchResult;
+            _sendModel = new SendModel();
+
+            Loaded += SendPage_Loaded;
+        }
+
+        private void SendPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (_userSearchResult.Users.FirstOrDefault().TotalMessageCount > 0)
+            {
+                SendMessageButton.IsEnabled = false;
+            }
+        }
+
+        private void Button_Click_Send(object sender, RoutedEventArgs e)
+        {
+            _sendModel.Message = UserTextToSend.Text;
+            _sendModel.Interval = TimePicker.Value.GetValueOrDefault().TimeOfDay;
+            _sendModel.IsNameIncluded = CheckBoxName.IsChecked.Value;
+
+            if (!string.IsNullOrEmpty(UserTextToSend.Text) || UserFilesToSend.Items.Count > 0)
+            {
+                Send();
+            }
+            else
+            {
+                MessageBox.Show("Нечего отправлять", MessageBoxConstants.Information, MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private async void Send()
+        {
+            TelegramClient client = await Client.GetClient();
+            if (_sendModel.Interval != TimeSpan.Zero)
+            {
+                CancellationTokenSource tokenSource = new CancellationTokenSource();
+                MessageBox.Show("Сообщения будут отправлены", MessageBoxConstants.Information, MessageBoxButton.OK, MessageBoxImage.Question);
+                ClearSendForm();
+                NavidateHome();
+                await _sendService.RunPeriodically(client, _sendModel, _userSearchResult, tokenSource.Token);
+            }
+            else
+            {
+                var users = await _sendService.SendMessage(client, _sendModel, _userSearchResult);
+                if (users.Count > 0)
+                {
+                    MessageBox.Show("Отправлено", MessageBoxConstants.Information, MessageBoxButton.OK, MessageBoxImage.Question);
+                    ClearSendForm();
+                    ResultPage resultPage = new ResultPage(new UserSearchResult() { Users = users });
+                    NavigationService.Navigate(resultPage);
+                }
+                else
+                {
+                    MessageBox.Show("Сообщение не отправлено ни одному пользователю", MessageBoxConstants.Information, 
+                        MessageBoxButton.OK, MessageBoxImage.Question);
+                    NavidateHome();
+                }
+            }
+        }
+
+        private void NavidateHome()
+        {
+            HomePage home = new HomePage();
+            NavigationService.Navigate(home);
+        }
+
+        private void ButtonLoadFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Multiselect = true,
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                foreach (string filename in openFileDialog.FileNames)
+                {
+                    var file = Path.GetFileName(filename);
+                    UserFilesToSend.Items.Add(file);
+                    SetFileType(filename);
+                }
+            }
+        }
+
+        private void SetFileType(string filename)
+        {
+            if (filename.EndsWith(".png", StringComparison.CurrentCultureIgnoreCase) ||
+                filename.EndsWith(".jpeg", StringComparison.CurrentCultureIgnoreCase) ||
+                filename.EndsWith(".jpg", StringComparison.CurrentCultureIgnoreCase) ||
+                filename.EndsWith(".bmp", StringComparison.CurrentCultureIgnoreCase))
+            {
+                _sendModel.Photo = filename;
+            }
+            else
+            {
+                _sendModel.Document = filename;
+            }
+        }
+
+        private void ClearSendForm()
+        {
+            UserFilesToSend?.Items.Clear();
+            UserTextToSend.Text = string.Empty;
+        }
+
+        private void InitTimer()
+        {
+            TimePicker.Format = DateTimeFormat.Custom;
+            TimePicker.FormatString = "HH'ч 'mm'м 'ss'с'";
+            TimePicker.Value = DateTime.Today;
+        }
+    }
+}

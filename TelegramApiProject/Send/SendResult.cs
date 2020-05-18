@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using SQLite;
+using System.Collections.Generic;
+using TelegramApiProject.User;
 using TeleSharp.TL;
 
 namespace TelegramApiProject.Send
 {
     public class SendResult
     {
-        public List<TLUser> BlackList { get; set; }
+        public List<UserModel> Users { get; set; }
+
+        public List<TLUser> TlUsers { get; set; }
     }
 }

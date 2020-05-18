@@ -1,0 +1,33 @@
+﻿<Page x:Class="TelegramApiProject.Wpf.Pages.AuthorizePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TelegramApiProject.Wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="650" d:DesignWidth="650"
+      Title="Authorize Page">
+
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.Background>
+            <ImageBrush ImageSource="../telegram.png" />
+        </Grid.Background>
+
+        <TextBlock Text="Номер (+380*********)" Width="150" Height="30"/>
+        <TextBox Grid.Column="1" Width="150" Height="30" Name="UserPhoneNumber"/>
+        <Button Grid.Column="2" Click="Button_Click_GetAuthorizeCode" Content="Отправить" Width="100" Height="30"/>
+        
+        <TextBlock Grid.Row="1" Text="Код" Width="150" Height="30"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Width="150" Height="30" Name="UserSmsCode"/>
+        <Button Grid.Row="1" Grid.Column="2" Content="Ввести" Width="100" Height="30" Click="Button_Click_AuthorizeWithSmsCode"/>
+    </Grid>
+</Page>

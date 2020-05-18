@@ -1,0 +1,48 @@
+﻿<Page x:Class="TelegramApiProject.Wpf.Pages.SendPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TelegramApiProject.Wpf.Pages"
+      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+      mc:Ignorable="d" 
+      d:DesignHeight="650" d:DesignWidth="650"
+      Title="SendPage">
+
+    <Grid Margin="10">
+        <Grid.Background>
+            <ImageBrush ImageSource="../telegram.png" />
+        </Grid.Background>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <DockPanel Grid.ColumnSpan="3" Grid.RowSpan="3" Margin="0">
+            <WrapPanel HorizontalAlignment="Left" DockPanel.Dock="Bottom" Margin="0,0,0,0">
+                <Button Margin="100,0,0,97" Padding="2" Name="ButtonLoadFile" Click="ButtonLoadFile_Click">Файл</Button>
+                <CheckBox Grid.Row="2" x:Name="CheckBoxName" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="5,00,0,0"  Height="30" />
+                <TextBlock Grid.Row="2" Text="Имя" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="5,0,0,0" Width="50" Height="30"  />
+            </WrapPanel>
+            <TextBox Width="400" Height="200" VerticalAlignment="Top" Margin="10,0,0,0" Name="UserTextToSend"/>
+            <ListBox Width="150" Height="200" Name="UserFilesToSend" VerticalAlignment="Top" VerticalContentAlignment="Stretch"/>
+        </DockPanel>
+
+        <!--<CheckBox Grid.Row="2" x:Name="CheckBoxName" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,00,0,0"  Height="30" />
+        <TextBlock Grid.Row="2" Text="Имя" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="00,0,0,0" Width="50" Height="30"  />-->
+        
+        <xctk:TimePicker  Width="120" Height="30" x:Name="TimePicker" VerticalAlignment="Bottom" Grid.Column="1" Grid.Row="3"
+                          Margin="0,0,0,0"/>
+        <Button Width="75" Height="30" VerticalAlignment="Center" Margin="0,0,0,0" Name="SendMessageButton" 
+                Grid.ColumnSpan="3" Grid.Row="4"
+                Click="Button_Click_Send">Отправить</Button>
+    </Grid>
+</Page>

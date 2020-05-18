@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using TelegramApiProject.User;
 using TeleSharp.TL;
-using TeleSharp.TL.Channels;
 using TeleSharp.TL.Messages;
 using TLSharp.Core;
 
@@ -12,63 +11,69 @@ namespace TelegramApiProject.Search
 {
     public class UserSearchService
     {
+        private readonly UserService _userService;
+
+        public UserSearchService(UserService userService)
+        {
+            _userService = userService;
+        }
+
         public async Task<UserSearchResult> Find(TelegramClient client, UserSearchModel searchModel)
         {
-            UserSearchResult searchResult = new UserSearchResult() { TlUsers = new List<TLUser>(), Users = new List<User>() };
-            List<TLUser> users = await GetUsers(client);
+            UserSearchResult users = await GetUsers(client);
 
             if (searchModel.IsPhotoPresent != null)
             {
-                users = await GetUsersBasedOnPhotoPresense(client, users, searchModel.IsPhotoPresent);
-                searchResult.TlUsers.AddRange(users);
+                users = GetUsersBasedOnPhotoPresense(users, searchModel.IsPhotoPresent);
             }
             if (searchModel.UserStatus != null)
             {
-                users = await GetByUserStatus(client, users, searchModel.UserStatus);
-                searchResult.TlUsers.AddRange(users);
+                users = GetByUserStatus(users, searchModel.UserStatus);
             }
             if (searchModel.LastSeen != null)
             {
-                users = await GetByLastSeen(client, users, searchModel.LastSeen);
-                searchResult.TlUsers.AddRange(users);
+                users = GetByLastSeen(users, searchModel.LastSeen);
             }
-            if (searchModel.NicknameIsAbsent != null)
+            if (searchModel.IsNicknamePresent != null)
             {
-                users = await GetByAbsentNickname(client, users, searchModel.NicknameIsAbsent);
-                searchResult.TlUsers.AddRange(users);
+                users = GetByPresenetNickname(users, searchModel.IsNicknamePresent);
             }
-            return EnsureUniqueUsers(searchResult);
+            
+            return EnsureUniqueUsers(users);
         }
 
-        public UserSearchResult EnsureUniqueUsers(UserSearchResult searchResult)
+        public UserSearchResult EnsureUniqueUsers(UserSearchResult users)
         {
-            searchResult.TlUsers = searchResult.TlUsers.GroupBy(x => x.Id).Select(y => y.First()).ToList();
+            users.TlUsers = users.TlUsers.GroupBy(x => x.Id).Select(y => y.First()).ToList();
 
-            return searchResult;
+            users.Users = users.Users.GroupBy(x => x.Id).Select(y => y.First()).ToList();
+
+            return users;
         }
 
-        private async Task<List<TLUser>> GetByAbsentNickname(TelegramClient client, List<TLUser> users, bool? isNicknameAbsent)
+        private UserSearchResult GetByPresenetNickname(UserSearchResult users, bool? isNicknamePresent)
         {
-            var result = new List<TLUser>();
+            var result = new UserSearchResult() { TlUsers = new List<TLUser>(), Users = new List<UserModel>() };
 
-            foreach (TLUser user in users)
+            foreach (TLUser user in users.TlUsers)
             {
-                bool isAbsent = user.Username == null ? true : false;
+                bool isPresent = user.Username == null ? false : true;
 
-                if (isAbsent == isNicknameAbsent)
+                if (isPresent == isNicknamePresent)
                 {
-                    result.Add(user);
+                    result.TlUsers.Add(user);
+                    result.Users.Add(_userService.CreateCustomUserModel(user));
                 }
             }
 
             return result;
         }
 
-        private async Task<List<TLUser>> GetByLastSeen(TelegramClient client, List<TLUser> users, DateTime? startedSearchedLastSeenTime)
+        private UserSearchResult GetByLastSeen(UserSearchResult users, DateTime? startedSearchedLastSeenTime)
         {
-            var result = new List<TLUser>();
+            var result = new UserSearchResult() { TlUsers = new List<TLUser>(), Users = new List<UserModel>() };
 
-            foreach (TLUser user in users)
+            foreach (TLUser user in users.TlUsers)
             {
                 var status = user.Status;
 
@@ -81,7 +86,8 @@ namespace TelegramApiProject.Search
 
                     if (startedSearchedLastSeenTime < actualLastSeen)
                     {
-                        result.Add(user);
+                        result.TlUsers.Add(user);
+                        result.Users.Add(_userService.CreateCustomUserModel(user));
                     }
                 }
             }
@@ -89,51 +95,62 @@ namespace TelegramApiProject.Search
             return result;
         }
 
-        private async Task<List<TLUser>> GetUsersBasedOnPhotoPresense(TelegramClient client, List<TLUser> users, bool? isPhotoPresent)
+        private UserSearchResult GetUsersBasedOnPhotoPresense(UserSearchResult users, bool? isPhotoPresent)
         {
-            var result = new List<TLUser>();
+            var result = new UserSearchResult() { TlUsers = new List<TLUser>(), Users = new List<UserModel>() };
 
-            foreach (TLUser user in users)
+            foreach (TLUser user in users.TlUsers)
             {
                 bool actualPhotoPresense = user.Photo != null ? true : false;
 
                 if (actualPhotoPresense == isPhotoPresent)
                 {
-                    result.Add(user);
+                    result.TlUsers.Add(user);
+                    result.Users.Add(_userService.CreateCustomUserModel(user));
                 }
             }
 
             return result;
         }
 
-        public async Task<List<TLUser>> GetByUserStatus(TelegramClient client, List<TLUser> users, TLAbsUserStatus searchedStatus)
+        public UserSearchResult GetByUserStatus(UserSearchResult users, TLAbsUserStatus searchedStatus)
         {
-            var result = new List<TLUser>();
+            var result = new UserSearchResult() { TlUsers = new List<TLUser>(), Users = new List<UserModel>() };
 
-            foreach (TLUser user in users)
+            foreach (TLUser user in users.TlUsers)
             {
                 TLAbsUserStatus actualStatus = user.Status;
                 var searchedStatusName = searchedStatus.GetType().FullName;
+
                 if (actualStatus.ToString() == searchedStatusName)
                 {
-                    result.Add(user);
+                    result.TlUsers.Add(user);
+                    result.Users.Add(_userService.CreateCustomUserModel(user));
                 }
             }
 
             return result;
         }
-
-        public async Task<List<TLUser>> GetUsers(TelegramClient client)
+        public async Task<UserSearchResult> GetUsers(TelegramClient client)
         {
-            var usersList = new List<TLUser>();
+            UserSearchResult searchResult = new UserSearchResult() { TlUsers = new List<TLUser>(), Users = new List<UserModel>() };
 
             try
             {
-                var dialogs = (TLDialogsSlice)await client.GetUserDialogsAsync();
+                dynamic dialogs;
+                try
+                {
+                    dialogs = (TLDialogs)await client.GetUserDialogsAsync();
+                }
+                catch (Exception ex)
+                {
+                    dialogs = (TLDialogsSlice)await client.GetUserDialogsAsync();
+                    Logger.Error(ex);
+                }
 
                 foreach (TLAbsChat element in dialogs.Chats)
                 {
-                    if (element is TLChat) //chats with permissions
+                    if (element is TLChat)
                     {
                         TLChat chat = element as TLChat;
                         var request = new TLRequestGetFullChat() { ChatId = chat.Id };
@@ -146,7 +163,10 @@ namespace TelegramApiProject.Search
 
                             if (!user.Bot)
                             {
-                                usersList.Add(user);
+                                searchResult.TlUsers.Add(user);
+
+                                var customeUser = _userService.CreateCustomUserModel(user);
+                                searchResult.Users.Add(customeUser);
                             }
                         }
                     }
@@ -155,31 +175,10 @@ namespace TelegramApiProject.Search
 
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Logger.Error(ex);
             }
 
-            return usersList;
-        }
-
-        private async Task GetPublicChannelsAsync(TelegramClient client, TLDialogsSlice dialogs)
-        {
-            foreach (TLAbsChat element in dialogs.Chats)
-            {
-                if (element is TLChannel)
-                {
-                    var offset = 0;
-                    TLChannel channel = element as TLChannel;
-
-                    var chan = await client.SendRequestAsync<TeleSharp.TL.Messages.TLChatFull>(new TLRequestGetFullChannel()
-                    {
-                        Channel = new TLInputChannel()
-                        { ChannelId = channel.Id, AccessHash = (long)channel.AccessHash }
-                    });
-
-                    TLInputPeerChannel inputPeer = new TLInputPeerChannel()
-                    { ChannelId = channel.Id, AccessHash = (long)channel.AccessHash };
-                }
-            }
+            return searchResult;
         }
     }
 }

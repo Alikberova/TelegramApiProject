@@ -1,28 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+﻿using System.Diagnostics;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+using TelegramApiProject.Wpf.Pages;
 
 namespace TelegramApiProject.Wpf
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : NavigationWindow
     {
         public MainWindow()
         {
             InitializeComponent();
+            CheckIfAuthorized();
+        }
+
+        private void CheckIfAuthorized()
+        {
+            //need stay synchronous (!)
+            var client = Client.GetClient().Result;
+            HomePage home = new HomePage();
+
+            if (client.Session != null && client.Session.TLUser != null)
+            {
+                NavigationService.Navigate(home);
+            }
+            else
+            {
+                AuthorizePage authorizePage = new AuthorizePage();
+                NavigationService.Navigate(authorizePage);
+            }
         }
     }
 }

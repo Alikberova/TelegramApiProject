@@ -1,82 +1,90 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.StaticFiles;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using TelegramApiProject.Search;
+using TelegramApiProject.User;
 using TeleSharp.TL;
 using TLSharp.Core;
+using TLSharp.Core.Utils;
 
 namespace TelegramApiProject.Send
 {
     public class SendService
     {
-        private readonly UserSearchService _searchService;
         private readonly MessageServise _messageServise;
+        private readonly UserService _userService;
 
-        public SendService(UserSearchService searchService, MessageServise messageServise)
+        public SendService(MessageServise messageServise, UserService userService)
         {
-            _searchService = searchService;
             _messageServise = messageServise;
+            _userService = userService;
         }
 
-        public async Task<SendResult> Send(TelegramClient client, SendModel sendModel)
+        public async Task RunPeriodically(TelegramClient client, SendModel sendModel, UserSearchResult searchResult, CancellationToken token)
         {
-            var result = new SendResult() { BlackList = new List<TLUser>() };
-            //List<TLUser> users = _searchService.Find(client, new UserSearchModel()).Result.TlUsers;
-
-            if (sendModel.Message != null)
+            if (sendModel.Photo == null && sendModel.Document == null && string.IsNullOrEmpty(sendModel.Message)) return;
+            while (sendModel.Interval != TimeSpan.Zero)
             {
-                var blackListUsers = await SendMessages(client, sendModel);
-                result.BlackList.AddRange(blackListUsers);
-            }
-
-            return result;
-        }
-
-        public async Task RunPeriodically(TelegramClient client, SendModel sendModel, CancellationToken token)
-        {
-            while (sendModel.Interval != null) //todo add condition
-            {
-                await SendMessages(client, sendModel);
+                await SendMessage(client, sendModel, searchResult);
                 await Task.Delay(sendModel.Interval.Value, token);
             }
         }
 
-        public async Task<List<TLUser>> SendMessages(TelegramClient client, SendModel sendModel)
+        public async Task<List<UserModel>> SendMessage(TelegramClient client, SendModel sendModel, UserSearchResult searchResult)
         {
-            List<TLUser> users = _searchService.Find(client, new UserSearchModel()).Result.TlUsers;
-            List<TLUser> usersBlackList = new List<TLUser>();
+            List<UserModel> users = new List<UserModel>();
 
-            foreach (TLUser user in users)
+            foreach (TLUser tlUser in searchResult.TlUsers)
             {
-                string message = _messageServise.FormMessaage(user, sendModel.Message);
-                await client.SendMessageAsync(new TLInputPeerUser() { UserId = user.Id }, message);
+                var peer = new TLInputPeerUser() { UserId = tlUser.Id, AccessHash = tlUser.AccessHash.Value };
+                var text = sendModel.Message;
+                var photo = sendModel.Photo;
+                var doc = sendModel.Document;
 
-                Console.WriteLine(string.Format($"Sent message to {user.FirstName}"));
-                usersBlackList.Add(user);
-                Console.WriteLine($"Users black list count: " + usersBlackList.Count);
+                if (photo != null)
+                {
+                    var fileResult = (TLInputFile)await client.UploadFile(photo, new StreamReader(photo));
+
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        await client.SendUploadedPhoto(peer, fileResult,
+                            _messageServise.FormMessaage(tlUser, text, sendModel.IsNameIncluded));
+                    }
+                    else
+                    {
+                        await client.SendUploadedPhoto(peer, fileResult, string.Empty);
+                    }
+                }
+                else if (doc != null)
+                {
+                    var fileResult = (TLInputFile)await client.UploadFile(doc, new StreamReader(doc));
+                    new FileExtensionContentTypeProvider().TryGetContentType(doc, out string contentType);
+
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        await client.SendUploadedDocument(peer, fileResult, _messageServise.FormMessaage(tlUser, text, sendModel.IsNameIncluded),
+                            contentType, new TLVector<TLAbsDocumentAttribute>());
+                    }
+                    else
+                    {
+                        await client.SendUploadedDocument(peer, fileResult, string.Empty, contentType, new TLVector<TLAbsDocumentAttribute>());
+                    }
+                }
+                else if (!string.IsNullOrEmpty(text))
+                {
+                    string message = _messageServise.FormMessaage(tlUser, text, sendModel.IsNameIncluded);
+                    await client.SendMessageAsync(peer, message);
+                }
+
+                var user = _userService.CreateCustomUserModel(tlUser);
+                user.TotalMessageCount++;
+                users.Add(user);
             }
 
-            return usersBlackList;
-        }
-
-        public void Draft(Action action, TelegramClient client)
-        {
-            //var startTimeSpan = TimeSpan.Zero;
-            //SendModel sendModel = new SendModel() { Interval = new TimeSpan(0, 0, 7), Message = "Test message here" };
-            //var timer = new Timer((e) =>
-            //{
-            //    SendMessages(client, sendModel);
-            //}, null, startTimeSpan, sendModel.Interval);
-
-            //SenderDelegate sender = new SenderDelegate(Test);
-
-            //Task.Factory.StartNew(() =>
-            //{
-            //    Thread.Sleep(interval);
-            //    sender(client);
-            //});
+            return users;
         }
     }
 }

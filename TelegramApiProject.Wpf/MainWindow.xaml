@@ -5,5 +5,5 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TelegramApiProject.Wpf"
         mc:Ignorable="d"
-        Title="TelegramApiProject" Height="400" Width="500" Source="HomePage.xaml">
+        Title="TelegramApiProject" Height="650" Width="650" Source="Pages/HomePage.xaml">
 </NavigationWindow>

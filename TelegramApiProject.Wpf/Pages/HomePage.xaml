@@ -1,0 +1,59 @@
+﻿<Page x:Class="TelegramApiProject.Wpf.Pages.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TelegramApiProject.Wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="650" d:DesignWidth="650"
+      Title="Home">
+    <Grid Margin="10">
+        <Grid.Background>
+            <ImageBrush ImageSource="../telegram.png" />
+        </Grid.Background>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+            <TextBlock Grid.Column="1" Text="Значение" Grid.Row="1" />
+            <TextBlock Text="Фильтр" Grid.Row="1" />
+            <TextBlock Text="С никнеймом" Grid.Row="2" />
+            <TextBlock Text="С фото" Grid.Row="3" />
+            <TextBlock Text="Статус" Grid.Row="4" />
+            <TextBlock Text="Последний онлайн" Grid.Row="5" />
+        <ComboBox Grid.Column="1" Grid.Row="2" Name="UserNicknameIsAbsent" Height="30" HorizontalAlignment="Left" Width="280">
+            <TextBlock>Да</TextBlock>
+            <TextBlock>Нет</TextBlock>
+            <TextBlock>Без разницы</TextBlock>
+        </ComboBox>
+        <!--<CheckBox  Grid.Column="1" Grid.Row="2" Name="UserPhotoIsPresent"/>-->
+        <ComboBox Grid.Column="1" Grid.Row="3" Name="UserPhotoIsPresent" Height="30" HorizontalAlignment="Left" Width="280">
+            <TextBlock>Да</TextBlock>
+            <TextBlock>Нет</TextBlock>
+            <TextBlock>Без разницы</TextBlock>
+        </ComboBox>
+            <ComboBox Grid.Column="1" Grid.Row="4" Name="UserStatusList" Height="30" HorizontalAlignment="Left" Width="280">
+                <TextBlock>Онлайн</TextBlock>
+                <TextBlock>Оффлайн</TextBlock>
+                <TextBlock>Недавно</TextBlock>
+                <TextBlock>Прошлая неделя</TextBlock>
+                <TextBlock>Прошлый месяц</TextBlock>
+                <TextBlock>Пустo</TextBlock>
+                <TextBlock>Без разницы</TextBlock>
+        </ComboBox>
+            <DatePicker Grid.Column="1" Grid.Row="5" Name="UserLastSeenDate" Height="25"/>
+        <Button Grid.Column="1" Width="75" Height="25"  Margin="200,0,0,30" Click="Button_Click_Logout">Logout</Button>
+        <Button Grid.Row="6" Grid.ColumnSpan="2" Width="75" Height="30" Click="Button_Click_Results">Результаты</Button>
+        <!--<Button Grid.Row="6" Width="75" Height="30"  Margin="100,0,0,0" Click="Button_Click_Send">Рассылка</Button>-->
+    </Grid>
+</Page>
+

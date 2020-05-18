@@ -1,49 +1,48 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using TeleSharp.TL;
-using TeleSharp.TL.Account;
 using TLSharp.Core;
 
-namespace TelegramApiProject.Web
+namespace TelegramApiProject.Wpf
 {
     public class Client
     {
-        public static TelegramClient client;
-        public static TLUser loggedUser;
-        static readonly AppConfig config = Startup.StaticConfig.GetSection("AppConfig").Get<AppConfig>();
+        private static TelegramClient client;
+        private static readonly AppConfig config = Program.StaticConfig.GetSection("AppConfig").Get<AppConfig>();
 
         public static async Task<TelegramClient> GetClient()
         {
-            if (client != null)
+            try
             {
+                if (client != null)
+                {
+                    return client;
+                }
+
+                string sessionPath = new PathService().SessionPath();
+
+                client = new TelegramClient(config.ApiId, config.ApiHash, new FileSessionStore(), sessionPath);
+
+                await client.ConnectAsync();
+
                 return client;
             }
-
-            client = new TelegramClient(config.ApiId, config.ApiHash, new FileSessionStore(), "session");
-            await client.ConnectAsync();
-
-            loggedUser = await GetLoggedInUser(client);
-
-            return client;
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+            return null;
         }
 
-        public static async Task<TLUser> GetLoggedInUser(TelegramClient client)
+        public static async Task<string> GetSmsCode(string phoneNumber)
         {
-            if (client.Session != null)
-            {
-                return client.Session.TLUser;
-            }
+            var hash = await client.SendCodeRequestAsync(phoneNumber);
+            return hash;
+        }
 
-            var hash = await client.SendCodeRequestAsync(config.PhoneNumber);
-            Debugger.Break();
-            var code = "";
-
-            return await client.MakeAuthAsync(config.PhoneNumber, hash, code);
+        public static async Task AuthorizeWithSms(string phoneNumber, string hash, string smsCode)
+        {
+            await client.MakeAuthAsync(phoneNumber, hash, smsCode);
         }
     }
 }
