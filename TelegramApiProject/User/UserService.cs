@@ -73,7 +73,7 @@ namespace TelegramApiProject.User
                     .ToString();
             }
 
-            user.IsPhoto = tlUser.Photo != null ? true : false;
+            user.WithPhoto = tlUser.Photo != null ? true : false;
 
             return user;
         }

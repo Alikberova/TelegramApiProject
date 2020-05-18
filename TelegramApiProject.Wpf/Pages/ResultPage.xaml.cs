@@ -26,10 +26,8 @@ namespace TelegramApiProject.Wpf.Pages
         {
             _dbServise.AddDefinedUsers(_userResult);
             UsersDataGrid.ItemsSource = _context.SearchResult.Local.ToObservableCollection();
-            if (_userResult.Users.FirstOrDefault().TotalMessageCount > 0)
-            {
-                SearchButton.IsEnabled = false;
-            }
+            //column with checkbox IsPhoto
+            UsersDataGrid.Columns.ElementAtOrDefault(UsersDataGrid.Columns.Count - 1).IsReadOnly = true;
         }
 
         private void Button_Click_ToSendPage(object sender, RoutedEventArgs e)

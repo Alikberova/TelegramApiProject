@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TelegramApiProject.Send
 {
     public class SendModel
     {
 #nullable enable
-        public string? Photo { get; set; }
+        public List<string>? Photos { get; set; }
 #nullable enable
-        public string? Document { get; set; }
+        public List<string>? Documents { get; set; }
 #nullable enable
         public string? Message { get; set; }
 #nullable enable

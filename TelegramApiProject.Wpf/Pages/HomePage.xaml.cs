@@ -28,10 +28,11 @@ namespace TelegramApiProject.Wpf.Pages
             UserSearchModel searchModel = GetSearchModelFromUserInput();
 
             var client = await Client.GetClient();
-
+            
             _searchResult = await _userSearchService.Find(client, searchModel);
 
             ResultPage result = new ResultPage(_searchResult);
+
             NavigationService.Navigate(result);
         }
 

@@ -40,7 +40,7 @@
         <TextBlock Grid.Row="2" Text="Имя" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="00,0,0,0" Width="50" Height="30"  />-->
         
         <xctk:TimePicker  Width="120" Height="30" x:Name="TimePicker" VerticalAlignment="Bottom" Grid.Column="1" Grid.Row="3"
-                          Margin="0,0,0,0"/>
+                          Margin="0,0,0,0" AllowTextInput="False"/>
         <Button Width="75" Height="30" VerticalAlignment="Center" Margin="0,0,0,0" Name="SendMessageButton" 
                 Grid.ColumnSpan="3" Grid.Row="4"
                 Click="Button_Click_Send">Отправить</Button>

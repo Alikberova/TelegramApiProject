@@ -7,8 +7,6 @@ namespace TelegramApiProject.Wpf
     {
         public DbSet<UserModel> SearchResult { get; set; }
 
-        public DbSet<UserModel> SendResult { get; set; }
-
         public UserContext()
         {
             Database.EnsureDeleted();

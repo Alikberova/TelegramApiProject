@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -22,28 +23,19 @@ namespace TelegramApiProject.Wpf.Pages
         private readonly MessageServise _messageServise;
         private readonly UserSearchResult _userSearchResult;
         private readonly SendModel _sendModel;
-
+        private readonly BlacklistService _blacklistService;
 
         public SendPage(UserSearchResult userSearchResult)
         {
             _messageServise = new MessageServise();
-            _sendService = new SendService( _messageServise, new UserService());
+            _blacklistService = new BlacklistService(new PathService());
+            _sendService = new SendService(_messageServise, new UserService(), _blacklistService);
 
             InitializeComponent();
             InitTimer();
 
             _userSearchResult = userSearchResult;
             _sendModel = new SendModel();
-
-            Loaded += SendPage_Loaded;
-        }
-
-        private void SendPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (_userSearchResult.Users.FirstOrDefault().TotalMessageCount > 0)
-            {
-                SendMessageButton.IsEnabled = false;
-            }
         }
 
         private void Button_Click_Send(object sender, RoutedEventArgs e)
@@ -80,15 +72,14 @@ namespace TelegramApiProject.Wpf.Pages
                 {
                     MessageBox.Show("Отправлено", MessageBoxConstants.Information, MessageBoxButton.OK, MessageBoxImage.Question);
                     ClearSendForm();
-                    ResultPage resultPage = new ResultPage(new UserSearchResult() { Users = users });
-                    NavigationService.Navigate(resultPage);
                 }
                 else
                 {
                     MessageBox.Show("Сообщение не отправлено ни одному пользователю", MessageBoxConstants.Information, 
                         MessageBoxButton.OK, MessageBoxImage.Question);
-                    NavidateHome();
                 }
+
+                NavidateHome();
             }
         }
 
@@ -106,29 +97,33 @@ namespace TelegramApiProject.Wpf.Pages
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             };
 
+            //opens dialog for load file
             if (openFileDialog.ShowDialog() == true)
             {
                 foreach (string filename in openFileDialog.FileNames)
                 {
                     var file = Path.GetFileName(filename);
                     UserFilesToSend.Items.Add(file);
-                    SetFileType(filename);
+                    DetermineFileType(filename);
                 }
             }
         }
 
-        private void SetFileType(string filename)
+        private void DetermineFileType(string filename)
         {
+            _sendModel.Photos = _sendModel.Photos ?? new List<string>();
+            _sendModel.Documents = _sendModel.Documents ?? new List<string>();
+
             if (filename.EndsWith(".png", StringComparison.CurrentCultureIgnoreCase) ||
                 filename.EndsWith(".jpeg", StringComparison.CurrentCultureIgnoreCase) ||
                 filename.EndsWith(".jpg", StringComparison.CurrentCultureIgnoreCase) ||
                 filename.EndsWith(".bmp", StringComparison.CurrentCultureIgnoreCase))
             {
-                _sendModel.Photo = filename;
+                _sendModel.Photos.Add(filename);
             }
             else
             {
-                _sendModel.Document = filename;
+                _sendModel.Documents.Add(filename);
             }
         }
 

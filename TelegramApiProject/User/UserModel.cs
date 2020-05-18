@@ -18,8 +18,6 @@
 
         public string UserStatus { get; set; }
 
-        public bool IsPhoto { get; set; }
-
-        public int TotalMessageCount { get; set; }
+        public bool WithPhoto { get; set; }
     }
 }

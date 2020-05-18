@@ -28,7 +28,15 @@ namespace TelegramApiProject
             return Path.Combine(filePath, file);
         }
 
-        private void CreateDirIfNotExists(string filePath)
+        public void CreateFileIfNotExists(string filepath)
+        {
+            if (!File.Exists(filepath))
+            {
+                using (File.Create(filepath)); // This will generate warnings that you're not using the object and so on, but that's okay,
+            }
+        }
+
+        public void CreateDirIfNotExists(string filePath)
         {
             if (!Directory.Exists(filePath))
             {

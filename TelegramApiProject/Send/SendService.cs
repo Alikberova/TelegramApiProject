@@ -16,16 +16,19 @@ namespace TelegramApiProject.Send
     {
         private readonly MessageServise _messageServise;
         private readonly UserService _userService;
+        private readonly BlacklistService _blacklistService;
 
-        public SendService(MessageServise messageServise, UserService userService)
+        public SendService(MessageServise messageServise, UserService userService, BlacklistService blacklistService)
         {
             _messageServise = messageServise;
             _userService = userService;
+            _blacklistService = blacklistService;
         }
 
         public async Task RunPeriodically(TelegramClient client, SendModel sendModel, UserSearchResult searchResult, CancellationToken token)
         {
-            if (sendModel.Photo == null && sendModel.Document == null && string.IsNullOrEmpty(sendModel.Message)) return;
+            if (sendModel.Photos == null && sendModel.Documents == null && string.IsNullOrEmpty(sendModel.Message)) return;
+
             while (sendModel.Interval != TimeSpan.Zero)
             {
                 await SendMessage(client, sendModel, searchResult);
@@ -39,48 +42,61 @@ namespace TelegramApiProject.Send
 
             foreach (TLUser tlUser in searchResult.TlUsers)
             {
+                if (_blacklistService.BlacklistContainsId(tlUser.Id)) continue;
+
                 var peer = new TLInputPeerUser() { UserId = tlUser.Id, AccessHash = tlUser.AccessHash.Value };
-                var text = sendModel.Message;
-                var photo = sendModel.Photo;
-                var doc = sendModel.Document;
+                var text = sendModel?.Message;
+                var photos = sendModel?.Photos;
+                var docs = sendModel?.Documents;
 
-                if (photo != null)
+                if (photos != null && photos.Count > 0)
                 {
-                    var fileResult = (TLInputFile)await client.UploadFile(photo, new StreamReader(photo));
+                    foreach (var photo in photos)
+                    {
+                        var loadedPhoto = (TLInputFile)await client.UploadFile(photo, new StreamReader(photo));
 
-                    if (!string.IsNullOrEmpty(text))
-                    {
-                        await client.SendUploadedPhoto(peer, fileResult,
-                            _messageServise.FormMessaage(tlUser, text, sendModel.IsNameIncluded));
+                        if (!string.IsNullOrEmpty(text) && photos.IndexOf(photo) < 1)
+                        {
+                            await client.SendUploadedPhoto(peer, loadedPhoto,
+                                _messageServise.FormMessaage(tlUser, text, sendModel.IsNameIncluded));
+                        }
+                        else
+                        {
+                            await client.SendUploadedPhoto(peer, loadedPhoto, string.Empty);
+                        }
                     }
-                    else
-                    {
-                        await client.SendUploadedPhoto(peer, fileResult, string.Empty);
-                    }
+                    
+                    _blacklistService.WriteToBlacklistFile(tlUser.Id);
                 }
-                else if (doc != null)
+                if (docs != null && docs.Count > 0)
                 {
-                    var fileResult = (TLInputFile)await client.UploadFile(doc, new StreamReader(doc));
-                    new FileExtensionContentTypeProvider().TryGetContentType(doc, out string contentType);
+                    foreach (var doc in docs)
+                    {
+                        var loadedDoc = (TLInputFile)await client.UploadFile(doc, new StreamReader(doc));
+                        new FileExtensionContentTypeProvider().TryGetContentType(doc, out string contentType);
 
-                    if (!string.IsNullOrEmpty(text))
-                    {
-                        await client.SendUploadedDocument(peer, fileResult, _messageServise.FormMessaage(tlUser, text, sendModel.IsNameIncluded),
-                            contentType, new TLVector<TLAbsDocumentAttribute>());
+                        if (!string.IsNullOrEmpty(text) && docs.IndexOf(doc) < 1)
+                        {
+                            await client.SendUploadedDocument(peer, loadedDoc, _messageServise.FormMessaage(tlUser, text, sendModel.IsNameIncluded),
+                                contentType, new TLVector<TLAbsDocumentAttribute>());
+                        }
+                        else
+                        {
+                            await client.SendUploadedDocument(peer, loadedDoc, string.Empty, contentType, new TLVector<TLAbsDocumentAttribute>());
+                        }
                     }
-                    else
-                    {
-                        await client.SendUploadedDocument(peer, fileResult, string.Empty, contentType, new TLVector<TLAbsDocumentAttribute>());
-                    }
+
+                    _blacklistService.WriteToBlacklistFile(tlUser.Id);
                 }
                 else if (!string.IsNullOrEmpty(text))
                 {
                     string message = _messageServise.FormMessaage(tlUser, text, sendModel.IsNameIncluded);
                     await client.SendMessageAsync(peer, message);
+
+                    _blacklistService.WriteToBlacklistFile(tlUser.Id);
                 }
 
                 var user = _userService.CreateCustomUserModel(tlUser);
-                user.TotalMessageCount++;
                 users.Add(user);
             }
 

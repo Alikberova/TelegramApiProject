@@ -36,7 +36,7 @@ namespace TelegramApiProject.Wpf
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            string path = new PathService().UsersPath("users.log");
+            string path = new PathService().UsersPath("error.log");
             var t = new TextWriterTraceListener(path) { Name = "Custom" };
             Trace.Listeners.Add(t);
             Trace.AutoFlush = true;

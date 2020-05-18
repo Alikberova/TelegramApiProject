@@ -24,24 +24,24 @@
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-            <TextBlock Grid.Column="1" Text="Значение" Grid.Row="1" />
-            <TextBlock Text="Фильтр" Grid.Row="1" />
-            <TextBlock Text="С никнеймом" Grid.Row="2" />
-            <TextBlock Text="С фото" Grid.Row="3" />
-            <TextBlock Text="Статус" Grid.Row="4" />
-            <TextBlock Text="Последний онлайн" Grid.Row="5" />
-        <ComboBox Grid.Column="1" Grid.Row="2" Name="UserNicknameIsAbsent" Height="30" HorizontalAlignment="Left" Width="280">
+        <TextBlock HorizontalAlignment="Center" Grid.Column="1" Text="Значение" Grid.Row="1" />
+        <TextBlock HorizontalAlignment="Center" Text="Фильтр" Grid.Row="1" />
+        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="С никнеймом" Grid.Row="2" />
+        <TextBlock VerticalAlignment="Center"  HorizontalAlignment="Center" Text="С фото" Grid.Row="3" />
+        <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Center" Text="Статус" Grid.Row="4" />
+        <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Center" Text="Последний онлайн" Grid.Row="5" />
+        <ComboBox Grid.Column="1" Grid.Row="2" Name="UserNicknameIsAbsent" Height="30" HorizontalAlignment="Center" Width="280">
             <TextBlock>Да</TextBlock>
             <TextBlock>Нет</TextBlock>
             <TextBlock>Без разницы</TextBlock>
         </ComboBox>
         <!--<CheckBox  Grid.Column="1" Grid.Row="2" Name="UserPhotoIsPresent"/>-->
-        <ComboBox Grid.Column="1" Grid.Row="3" Name="UserPhotoIsPresent" Height="30" HorizontalAlignment="Left" Width="280">
+        <ComboBox Grid.Column="1" Grid.Row="3" Name="UserPhotoIsPresent" Height="30" HorizontalAlignment="Center" Width="280">
             <TextBlock>Да</TextBlock>
             <TextBlock>Нет</TextBlock>
             <TextBlock>Без разницы</TextBlock>
         </ComboBox>
-            <ComboBox Grid.Column="1" Grid.Row="4" Name="UserStatusList" Height="30" HorizontalAlignment="Left" Width="280">
+            <ComboBox Grid.Column="1" Grid.Row="4" Name="UserStatusList" Height="30" HorizontalAlignment="Center" Width="280">
                 <TextBlock>Онлайн</TextBlock>
                 <TextBlock>Оффлайн</TextBlock>
                 <TextBlock>Недавно</TextBlock>
@@ -50,7 +50,7 @@
                 <TextBlock>Пустo</TextBlock>
                 <TextBlock>Без разницы</TextBlock>
         </ComboBox>
-            <DatePicker Grid.Column="1" Grid.Row="5" Name="UserLastSeenDate" Height="25"/>
+            <DatePicker Grid.Column="1" Grid.Row="5" Name="UserLastSeenDate" Width="280" Height="25"/>
         <Button Grid.Column="1" Width="75" Height="25"  Margin="200,0,0,30" Click="Button_Click_Logout">Logout</Button>
         <Button Grid.Row="6" Grid.ColumnSpan="2" Width="75" Height="30" Click="Button_Click_Results">Результаты</Button>
         <!--<Button Grid.Row="6" Width="75" Height="30"  Margin="100,0,0,0" Click="Button_Click_Send">Рассылка</Button>-->
