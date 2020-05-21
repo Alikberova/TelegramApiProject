@@ -24,7 +24,7 @@ namespace TelegramApiProject.Wpf
                 }
             }
             _context?.SearchResult.Load();
-            _context.SearchResult.OrderBy(u => u.FirstName);
+            _context?.SearchResult.OrderBy(u => u.FirstName);
             _context.SaveChanges();
         }
     }

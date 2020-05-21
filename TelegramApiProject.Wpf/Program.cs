@@ -1,8 +1,13 @@
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using TelegramApiProject.User;
+using TelegramApiProject.Wpf.Pages;
 
 namespace TelegramApiProject.Wpf
 {
@@ -29,7 +34,10 @@ namespace TelegramApiProject.Wpf
                 }
                 catch (Exception ex)
                 {
+                    new UserService().DeleteUserSession();
+                    Client.GetClient().Result.Session.TLUser = null;
                     Logger.Error(ex);
+                    MessageBox.Show(ex.Message, MessageBoxConstants.Error, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -37,9 +45,14 @@ namespace TelegramApiProject.Wpf
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             string path = new PathService().UsersPath("error.log");
+            using var writer = new StreamWriter(path, true);
+            writer.WriteLine("start \n");
+            writer.Close();
+
             var t = new TextWriterTraceListener(path) { Name = "Custom" };
             Trace.Listeners.Add(t);
             Trace.AutoFlush = true;
+            Trace.Listeners.Remove("Default");
 
             ConfigurationBuilder builder = new ConfigurationBuilder();
             //builder.AddUserSecrets<Program>();

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
+using TeleSharp.TL.Account;
 using TLSharp.Core;
 
 namespace TelegramApiProject.Wpf
@@ -14,6 +15,7 @@ namespace TelegramApiProject.Wpf
         {
             try
             {
+                //+19014794259
                 if (client != null)
                 {
                     return client;
@@ -43,6 +45,12 @@ namespace TelegramApiProject.Wpf
         public static async Task AuthorizeWithSms(string phoneNumber, string hash, string smsCode)
         {
             await client.MakeAuthAsync(phoneNumber, hash, smsCode);
+        }
+
+        public static async Task AuthorizeWithPassword(string password)
+        {
+            var tlPassword = await client.GetPasswordSetting();
+            await client.MakeAuthWithPasswordAsync(tlPassword, password);
         }
     }
 }

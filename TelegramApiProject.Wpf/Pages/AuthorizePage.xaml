@@ -10,24 +10,30 @@
 
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="150"></ColumnDefinition>
             <ColumnDefinition Width="200"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
+            <RowDefinition x:Name="GridRowPassword"/>
         </Grid.RowDefinitions>
         <Grid.Background>
             <ImageBrush ImageSource="../telegram.png" />
         </Grid.Background>
 
-        <TextBlock Text="Номер (+380*********)" Width="150" Height="30"/>
-        <TextBox Grid.Column="1" Width="150" Height="30" Name="UserPhoneNumber"/>
+        <TextBlock Text="Номер в международном формате" Width="210" Height="30"/>
+        <TextBox Grid.Column="1" Height="30" Name="UserPhoneNumber"/>
         <Button Grid.Column="2" Click="Button_Click_GetAuthorizeCode" Content="Отправить" Width="100" Height="30"/>
         
         <TextBlock Grid.Row="1" Text="Код" Width="150" Height="30"/>
-        <TextBox Grid.Row="1" Grid.Column="1" Width="150" Height="30" Name="UserSmsCode"/>
+        <TextBox Grid.Row="1" Grid.Column="1"  Height="30" Name="UserSmsCode"/>
         <Button Grid.Row="1" Grid.Column="2" Content="Ввести" Width="100" Height="30" Click="Button_Click_AuthorizeWithSmsCode"/>
+
+        <TextBlock Grid.Row="2" Text="Пароль" Width="150" Height="30"/>
+        <!--<TextBox Grid.Row="2" Grid.Column="1"  Height="30" Name="UserPassword"/>-->
+        <PasswordBox Grid.Row="2" Grid.Column="1"  Height="30" Name="UserPassword"/>
+        <Button Grid.Row="2" Grid.Column="2" Content="Ввести" Width="100" Height="30" Click="Button_Click_AuthorizeWithUserPassword"/>
     </Grid>
 </Page>

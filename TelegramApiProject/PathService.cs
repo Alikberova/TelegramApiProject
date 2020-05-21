@@ -32,7 +32,7 @@ namespace TelegramApiProject
         {
             if (!File.Exists(filepath))
             {
-                using (File.Create(filepath)); // This will generate warnings that you're not using the object and so on, but that's okay,
+                using (File.Create(filepath));
             }
         }
 

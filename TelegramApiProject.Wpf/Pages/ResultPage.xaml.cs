@@ -26,7 +26,7 @@ namespace TelegramApiProject.Wpf.Pages
         {
             _dbServise.AddDefinedUsers(_userResult);
             UsersDataGrid.ItemsSource = _context.SearchResult.Local.ToObservableCollection();
-            //column with checkbox IsPhoto
+            //column with checkboxes IsPhoto is only for read
             UsersDataGrid.Columns.ElementAtOrDefault(UsersDataGrid.Columns.Count - 1).IsReadOnly = true;
         }
 
@@ -39,7 +39,8 @@ namespace TelegramApiProject.Wpf.Pages
             }
             else
             {
-                MessageBox.Show("Некому отправлять сообщения", MessageBoxConstants.Information, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Некому отправлять сообщения", MessageBoxConstants.Information, MessageBoxButton.OK, 
+                    MessageBoxImage.Information);
             }
         }
     }

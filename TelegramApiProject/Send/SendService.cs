@@ -31,8 +31,13 @@ namespace TelegramApiProject.Send
 
             while (sendModel.Interval != TimeSpan.Zero)
             {
-                await SendMessage(client, sendModel, searchResult);
-                await Task.Delay(sendModel.Interval.Value, token);
+                foreach (var user in searchResult.TlUsers)
+                {
+                    await Task.Delay(sendModel.Interval.Value, token);
+
+                    searchResult.TlUsers = new List<TLUser>() { user };
+                    await SendMessage(client, sendModel, searchResult);
+                }
             }
         }
 

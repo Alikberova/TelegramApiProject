@@ -53,6 +53,7 @@ namespace TelegramApiProject.Wpf.Pages
         private void Button_Click_Logout(object sender, RoutedEventArgs e)
         {
             _userService.DeleteUserSession();
+            Client.GetClient().Result.Session.TLUser = null;
             AuthorizePage authorizePage = new AuthorizePage();
             NavigationService.Navigate(authorizePage);
         }

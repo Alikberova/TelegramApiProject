@@ -50,7 +50,8 @@ namespace TelegramApiProject.Wpf.Pages
             }
             else
             {
-                MessageBox.Show("Нечего отправлять", MessageBoxConstants.Information, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Нечего отправлять", MessageBoxConstants.Information, MessageBoxButton.OK, 
+                    MessageBoxImage.Information);
             }
         }
 
@@ -60,7 +61,8 @@ namespace TelegramApiProject.Wpf.Pages
             if (_sendModel.Interval != TimeSpan.Zero)
             {
                 CancellationTokenSource tokenSource = new CancellationTokenSource();
-                MessageBox.Show("Сообщения будут отправлены", MessageBoxConstants.Information, MessageBoxButton.OK, MessageBoxImage.Question);
+                MessageBox.Show("Сообщения будут отправлены", MessageBoxConstants.Information, MessageBoxButton.OK, 
+                    MessageBoxImage.Question);
                 ClearSendForm();
                 NavidateHome();
                 await _sendService.RunPeriodically(client, _sendModel, _userSearchResult, tokenSource.Token);
@@ -97,7 +99,7 @@ namespace TelegramApiProject.Wpf.Pages
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             };
 
-            //opens dialog for load file
+            //opens dialog for load files
             if (openFileDialog.ShowDialog() == true)
             {
                 foreach (string filename in openFileDialog.FileNames)
