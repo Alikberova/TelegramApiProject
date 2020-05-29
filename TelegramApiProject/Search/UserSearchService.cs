@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using TelegramApiProject.User;
 using TeleSharp.TL;
+using TeleSharp.TL.Channels;
+using TeleSharp.TL.Contacts;
 using TeleSharp.TL.Messages;
 using TLSharp.Core;
 
@@ -20,7 +22,7 @@ namespace TelegramApiProject.Search
 
         public async Task<UserSearchResult> Find(TelegramClient client, UserSearchModel searchModel)
         {
-            UserSearchResult users = await GetUsers(client);
+            UserSearchResult users = await GetUsers(client, searchModel.GroupsList);
 
             if (searchModel.IsPhotoPresent != null)
             {
@@ -131,7 +133,89 @@ namespace TelegramApiProject.Search
 
             return result;
         }
-        public async Task<UserSearchResult> GetUsers(TelegramClient client)
+
+        public async Task<UserSearchResult> GetUsers(TelegramClient client, List<string> chatsNames)
+        {
+            UserSearchResult searchResult = new UserSearchResult() { TlUsers = new List<TLUser>(), Users = new List<UserModel>() };
+
+            try
+            {
+                List<TLChannel> channels = await GetChats(client, chatsNames);
+
+                foreach (var channel in channels)
+                {
+                    var request = new TLRequestGetParticipants { 
+                        Channel = new TLInputChannel { 
+                        AccessHash = (long)channel.AccessHash, 
+                        ChannelId = channel.Id }, 
+                        Filter = new TLChannelParticipantsRecent() };
+
+                    TLChannelParticipants found = await client.SendRequestAsync<TLChannelParticipants>(request);
+
+                    foreach (var absUser in found.Users)
+                    {
+                        TLUser user = absUser as TLUser;
+
+                        if (!user.Bot && !user.Deleted && !user.Self)
+                        {
+                            searchResult.TlUsers.Add(user);
+
+                            var customeUser = _userService.CreateCustomUserModel(user);
+                            searchResult.Users.Add(customeUser);
+                        }
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            return searchResult;
+        }
+
+        public async Task<List<TLChannel>> GetChats(TelegramClient client, List<string> names)
+        {
+            List<TLChannel> channels = new List<TLChannel>();
+            try
+            {
+                foreach (string name in names)
+                {
+                    TLFound dialogs = await client.SearchUserAsync(name);
+
+                    //try get by chat name
+                    TLChannel channel = dialogs.Chats.Where(c => c.GetType() == typeof(TLChannel))
+                        .Cast<TLChannel>()
+                        .FirstOrDefault(c => c.Title == name);
+                    if (channel != null)
+                    {
+                        channels.Add(channel);
+                    }
+                    else
+                    {
+                        //try get by @chatname
+                        channel = dialogs.Chats.Where(c => c.GetType() == typeof(TLChannel))
+                        .Cast<TLChannel>()
+                        .FirstOrDefault(c => c.Username == name);
+                        if (channel != null)
+                        {
+                            channels.Add(channel);
+                        }
+                    }
+                }
+
+                if (channels.Count > 0) channels = channels.GroupBy(x => x.Id).Select(y => y.First()).ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            return channels;
+        }
+
+        public async Task<UserSearchResult> GetUsersOld(TelegramClient client)
         {
             UserSearchResult searchResult = new UserSearchResult() { TlUsers = new List<TLUser>(), Users = new List<UserModel>() };
 
@@ -161,7 +245,7 @@ namespace TelegramApiProject.Search
                         {
                             TLUser user = absUser as TLUser;
 
-                            if (!user.Bot)
+                            if (!user.Bot && !user.Deleted && !user.Self)
                             {
                                 searchResult.TlUsers.Add(user);
 

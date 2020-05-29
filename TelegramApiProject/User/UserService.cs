@@ -62,15 +62,18 @@ namespace TelegramApiProject.User
                 Logger.Error(ex);
             }
 
-            user.UserStatus = tlUser.Status.ToString().Substring(25);
-
-            if (tlUser.Status is TLUserStatusOffline)
+            if (tlUser.Status != null)
             {
-                var offline = tlUser.Status as TLUserStatusOffline;
-                user.LastSeen = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                    .AddSeconds(offline.WasOnline)
-                    .ToLocalTime()
-                    .ToString();
+                user.UserStatus = tlUser.Status.ToString().Substring(25);
+
+                if (tlUser.Status is TLUserStatusOffline)
+                {
+                    var offline = tlUser.Status as TLUserStatusOffline;
+                    user.LastSeen = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        .AddSeconds(offline.WasOnline)
+                        .ToLocalTime()
+                        .ToString();
+                }
             }
 
             user.WithPhoto = tlUser.Photo != null ? true : false;

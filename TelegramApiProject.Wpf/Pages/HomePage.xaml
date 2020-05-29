@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:TelegramApiProject.Wpf"
       mc:Ignorable="d" 
-      d:DesignHeight="650" d:DesignWidth="650"
+      d:DesignHeight="650" d:DesignWidth="650" ShowsNavigationUI="False"
       Title="Home">
     <Grid Margin="10">
         <Grid.Background>
@@ -22,6 +22,8 @@
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
+            <RowDefinition Height="180"></RowDefinition>
+            <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <TextBlock HorizontalAlignment="Center" Grid.Column="1" Text="Значение" Grid.Row="1" />
@@ -30,6 +32,7 @@
         <TextBlock VerticalAlignment="Center"  HorizontalAlignment="Center" Text="С фото" Grid.Row="3" />
         <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Center" Text="Статус" Grid.Row="4" />
         <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Center" Text="Последний онлайн" Grid.Row="5" />
+        <TextBlock Grid.Row="7" Grid.ColumnSpan="2" VerticalAlignment="Top" HorizontalAlignment="Center" Text="Группы по названию или логину через запятую"/>
         <ComboBox Grid.Column="1" Grid.Row="2" Name="UserNicknameIsAbsent" Height="30" HorizontalAlignment="Center" Width="280">
             <TextBlock>Да</TextBlock>
             <TextBlock>Нет</TextBlock>
@@ -51,8 +54,9 @@
                 <TextBlock>Без разницы</TextBlock>
         </ComboBox>
             <DatePicker Grid.Column="1" Grid.Row="5" Name="UserLastSeenDate" Width="280" Height="25"/>
-        <Button Grid.Column="1" Width="75" Height="25"  Margin="200,0,0,30" Click="Button_Click_Logout">Logout</Button>
-        <Button Grid.Row="6" Grid.ColumnSpan="2" Width="75" Height="30" Click="Button_Click_Results">Результаты</Button>
+        <TextBox AcceptsReturn="True" Grid.ColumnSpan="2" Grid.Row="6" Name="GroupsList" Margin="16, 10"/>
+        <Button Grid.Column="1" Width="75" Height="25"  Margin="200,0,0,0" Click="Button_Click_Logout">Logout</Button>
+        <Button Grid.Row="8" Grid.ColumnSpan="2" Width="75" Height="30" Click="Button_Click_Results">Результаты</Button>
         <!--<Button Grid.Row="6" Width="75" Height="30"  Margin="100,0,0,0" Click="Button_Click_Send">Рассылка</Button>-->
     </Grid>
 </Page>

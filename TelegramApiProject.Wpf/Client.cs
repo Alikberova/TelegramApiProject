@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using TeleSharp.TL.Account;
 using TLSharp.Core;
+using TLSharp.Core.Network;
 
 namespace TelegramApiProject.Wpf
 {
@@ -38,8 +40,16 @@ namespace TelegramApiProject.Wpf
 
         public static async Task<string> GetSmsCode(string phoneNumber)
         {
-            var hash = await client.SendCodeRequestAsync(phoneNumber);
-            return hash;
+            try
+            {
+                var hash = await client.SendCodeRequestAsync(phoneNumber);
+                return hash;
+            }
+            catch (Exception ex)
+            {
+                var hash = await client.SendCodeRequestAsync(phoneNumber);
+                return hash;
+            }
         }
 
         public static async Task AuthorizeWithSms(string phoneNumber, string hash, string smsCode)

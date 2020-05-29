@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -58,31 +57,56 @@ namespace TelegramApiProject.Wpf.Pages
         private async void Send()
         {
             TelegramClient client = await Client.GetClient();
+            int usersCount = _userSearchResult.TlUsers.Count;
+
             if (_sendModel.Interval != TimeSpan.Zero)
             {
                 CancellationTokenSource tokenSource = new CancellationTokenSource();
-                MessageBox.Show("Сообщения будут отправлены", MessageBoxConstants.Information, MessageBoxButton.OK, 
-                    MessageBoxImage.Question);
-                ClearSendForm();
-                NavidateHome();
-                await _sendService.RunPeriodically(client, _sendModel, _userSearchResult, tokenSource.Token);
+                string promptMessage = $"Сообщения будут отправлены {usersCount} пользователям";
+
+                if (MakeSureToSendMessages(promptMessage))
+                {
+                    ClearSendForm();
+                    NavidateHome();
+                    await _sendService.RunPeriodically(client, _sendModel, _userSearchResult, tokenSource.Token);
+                }
             }
             else
             {
-                var users = await _sendService.SendMessage(client, _sendModel, _userSearchResult);
-                if (users.Count > 0)
+                string promptMessage = $"Отправить сейчас сообщение {usersCount} пользователям?";
+                if (MakeSureToSendMessages(promptMessage))
                 {
-                    MessageBox.Show("Отправлено", MessageBoxConstants.Information, MessageBoxButton.OK, MessageBoxImage.Question);
+                    List<UserModel> users = await _sendService.SendMessage(client, _sendModel, _userSearchResult);
+                    if (users.Count > 0)
+                    {
+                        MessageBox.Show($"Отправлено", MessageBoxConstants.Information,
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Question);
+                        ClearSendForm();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Сообщение не отправлено ни одному пользователю", MessageBoxConstants.Information,
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Question);
+                    }
                     ClearSendForm();
+                    NavidateHome();
                 }
-                else
-                {
-                    MessageBox.Show("Сообщение не отправлено ни одному пользователю", MessageBoxConstants.Information, 
-                        MessageBoxButton.OK, MessageBoxImage.Question);
-                }
-
-                NavidateHome();
             }
+        }
+
+        private bool MakeSureToSendMessages(string promptMessage)
+        {
+            var dialogResult = MessageBox.Show(promptMessage, MessageBoxConstants.Information, MessageBoxButton.OKCancel, 
+                MessageBoxImage.Question);
+
+            if (dialogResult == MessageBoxResult.OK)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private void NavidateHome()

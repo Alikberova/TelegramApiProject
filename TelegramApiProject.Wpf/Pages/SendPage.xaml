@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:TelegramApiProject.Wpf.Pages"
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d" 
-      d:DesignHeight="650" d:DesignWidth="650"
+      d:DesignHeight="650" d:DesignWidth="650" ShowsNavigationUI="False"
       Title="SendPage">
 
     <Grid Margin="10">

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
-using TelegramApiProject.User;
 
 namespace TelegramApiProject.Wpf.Pages
 {
@@ -13,17 +13,12 @@ namespace TelegramApiProject.Wpf.Pages
         public AuthorizePage()
         {
             InitializeComponent();
-            //Loaded += AuthorizePage_Loaded;
-            GridRowPassword.Height = new GridLength(0);
-        }
-
-        private void AuthorizePage_Loaded(object sender, RoutedEventArgs e)
-        {
             GridRowPassword.Height = new GridLength(0);
         }
 
         private async void Button_Click_GetAuthorizeCode(object sender, RoutedEventArgs e)
         {
+            //string phoneNumber = Regex.Replace(UserPhoneNumber.Text, @"\s+", "");
             try
             {
                 _hash = await Client.GetSmsCode(UserPhoneNumber.Text);
@@ -48,7 +43,7 @@ namespace TelegramApiProject.Wpf.Pages
                 {
                     MessageBox.Show("Включена двухфакторная верификация. Введите пароль.", MessageBoxConstants.Information, 
                         MessageBoxButton.OK, MessageBoxImage.Question);
-                    GridRowPassword.Height = new GridLength(214); //GridResizeBehavior
+                    GridRowPassword.Height = new GridLength(214);
                 }
                 else
                 {
@@ -73,7 +68,9 @@ namespace TelegramApiProject.Wpf.Pages
         private void NavigateHome()
         {
             var authorizedUserNumber = Client.GetClient().Result.Session.TLUser.Phone;
-            if (authorizedUserNumber == UserPhoneNumber.Text.TrimStart('+'))
+            string uiPhoneNumber =  Regex.Replace(UserPhoneNumber.Text, @"\s+", "").TrimStart('+');
+
+            if (authorizedUserNumber == uiPhoneNumber)
             {
                 HomePage home = new HomePage();
                 NavigationService.Navigate(home);

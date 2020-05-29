@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TeleSharp.TL;
 
 namespace TelegramApiProject.Search
@@ -16,5 +17,7 @@ namespace TelegramApiProject.Search
 
 #nullable enable
         public bool? IsNicknamePresent { get; set; }
+
+        public List<string> GroupsList { get; set; }
     }
 }

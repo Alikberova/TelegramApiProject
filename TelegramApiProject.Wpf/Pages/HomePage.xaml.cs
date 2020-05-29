@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using TelegramApiProject.Search;
@@ -28,7 +30,7 @@ namespace TelegramApiProject.Wpf.Pages
             UserSearchModel searchModel = GetSearchModelFromUserInput();
 
             var client = await Client.GetClient();
-            
+
             _searchResult = await _userSearchService.Find(client, searchModel);
 
             ResultPage result = new ResultPage(_searchResult);
@@ -46,14 +48,38 @@ namespace TelegramApiProject.Wpf.Pages
                     UserNicknameIsAbsent.SelectedIndex),
                 IsPhotoPresent = _userService.GetBoolFromChoosenListItem(
                     UserPhotoIsPresent.SelectedIndex),
-                LastSeen = UserLastSeenDate.SelectedDate
+                LastSeen = UserLastSeenDate.SelectedDate,
+                GroupsList = GetChatsNames(GroupsList.Text)
+                /* List groups for test:
+                 Test acc Superman,Тест Группа,Test Group, Testgroup5*, TestGroup3, testgroupraid,Testgroup20181231-1, 
+                1000FPS SANDBOX, React(Native)Sandbox, Песочница: чат, TestGroupBot, Babyblog front gitlab, TEST GROUP, something else,
+                rnsandbox,
+                testgroup_Nous
+                 */
             };
+        }
+
+        private List<string> GetChatsNames(string names)
+        {
+            List<string> chatsNames = new List<string>();
+            string[] namesArray = names.Split(',').Where(n => !string.IsNullOrWhiteSpace(n)).ToArray();
+
+            for (int i = 0; i < namesArray.Length; i++)
+            {
+                //if (i == 10) break;
+
+                string name = namesArray[i];
+                chatsNames.Add(name.Trim());
+            }
+
+            return chatsNames;
         }
 
         private void Button_Click_Logout(object sender, RoutedEventArgs e)
         {
             _userService.DeleteUserSession();
-            Client.GetClient().Result.Session.TLUser = null;
+            var client = Client.GetClient().Result;
+            client.Session.TLUser = null;
             AuthorizePage authorizePage = new AuthorizePage();
             NavigationService.Navigate(authorizePage);
         }
